@@ -52,6 +52,7 @@ For verification:
 
 
 # Pseudo Code
+``` bash
 r1, r2, r3, r4
 
 count_match = 0
@@ -92,6 +93,7 @@ for line in r1, r2, r3, r4:
     else:
         write record to files_r1[index]
 
+```
 
 # Function declarations:
 ```
