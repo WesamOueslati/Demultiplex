@@ -25,3 +25,5 @@
     2. Function headers (name and parameters)
     3. Test examples for individual functions
     4. Return statement
+
+Please refer to [Notebook.md](Notebook.md) for answers to part 2. 
