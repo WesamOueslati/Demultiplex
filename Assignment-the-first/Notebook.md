@@ -1,3 +1,87 @@
+# Initial data exploration:
+I first store my file paths in variables so that I don't need to write them each time.
+Copy all lines from store_files.sh and paste them in the terminal
+
+Since the files are zipped, we have to read them with zcat first
+
+``` bash
+zcat $R1 | head
+zcat $R2 | head
+zcat $R3 | head
+zcat $R4 | head
+``` 
+
+```
+Results:
+1. R1
+@K00337:83:HJKJNBBXX:8:1101:1265:1191 1:N:0:1
+GNCTGGCATTCCCAGAGACATCAGTACCCAGTTGGTTCAGACAGTTCCTCTATTGGTTGACAAGGTCTTCATTTCTAGTGATATCAACACGGTGTCTACAA
++
+A#A-<FJJJ<JJJJJJJJJJJJJJJJJFJJJJFFJJFJJJAJJJJ-AJJJJJJJFFJJJJJJFFA-7<AJJJFFAJJJJJF<F--JJJJJJF-A-F7JJJJ
+@K00337:83:HJKJNBBXX:8:1101:1286:1191 1:N:0:1
+CNACCTGTCCCCAGCTCACAGGACAGCACACCAAAGGCGGCAACCCACACCCAGTTTTACAGCCACACAGTGCCTTGTTTTACTTGAGGACCCCCCACTCC
++
+A#AAFJJJJJJJJJJFJJJJJJJJJJJJJJJJJJJJJJJJFJJJJJJJJJJJJJJAJJJJJJJJJJJJJJFJJJJJFFFFJJJJJJJJJJJJJJJJJJ77F
+@K00337:83:HJKJNBBXX:8:1101:1347:1191 1:N:0:1
+GNGGTCTTCTACCTTTCTCTTCTTTTTTGGAGGAGTAGAATGTTGAGAGTCAGCAGTAGCCTCATCATCACTAGATGGCATTTCTTCTGAGCAAAACAGGT
+
+
+2. R2
+@K00337:83:HJKJNBBXX:8:1101:1265:1191 2:N:0:1
+NCTTCGAC
++
+#AA<FJJJ
+@K00337:83:HJKJNBBXX:8:1101:1286:1191 2:N:0:1
+NACAGCGA
++
+#AAAFJJJ
+@K00337:83:HJKJNBBXX:8:1101:1347:1191 2:N:0:1
+NTCCTAAG
+
+
+3. R3
+@K00337:83:HJKJNBBXX:8:1101:1265:1191 3:N:0:1
+NTCGAAGA
++
+#AAAAJJF
+@K00337:83:HJKJNBBXX:8:1101:1286:1191 3:N:0:1
+NCGCTGTT
++
+#AAAFJ-A
+@K00337:83:HJKJNBBXX:8:1101:1347:1191 3:N:0:1
+NTTAGGAC
+
+
+4. R4
+@K00337:83:HJKJNBBXX:8:1101:1265:1191 4:N:0:1
+NTTTTGATTTACCTTTCAGCCAATGAGAAGGCCGTTCATGCAGACTTTTTTAATGATTTTGAAGACCTTTTTGATGATGATGATGTCCAGTGAGGCCTCCC
++
+#AAFAFJJ-----F---7-<FA-F<AFFA-JJJ77<FJFJFJJJJJJJJJJAFJFFAJJJJJJJJFJF7-AFFJJ7F7JFJJFJ7FFF--A<A7<-A-7--
+@K00337:83:HJKJNBBXX:8:1101:1286:1191 4:N:0:1
+NTGTGTAGACAAAAGTTTTCATGAGTCTGTAAGCTGTCTATTGTCTCCTGAAAAGAAACCAGAAGTTTTCCCCTAAATGTGTTTAGAATGCTTATTCTAAT
++
+#A-AFFJJFJJJJJJJJJJJJJJJJ<JAJFJJJJF<JFJJJAJJJJJJJJJJJJJJJJJJJFJJJAJJFJJJFJJJF<JJA-JJJ-<AFAF--FF<JAFJF
+@K00337:83:HJKJNBBXX:8:1101:1347:1191 4:N:0:1
+NAAATGCCATCTAGTGATGATGAGGCTACTGCTGACTCTCAACATTCTACTCCTCCAAAAAAGAAGAGAAAGATTCCAACCCCCAGAACCGATGACCGGCA
+```
+
+```
+To determine the length of the reads, we can take the first record, extract the sequence line and find its length
+```
+``` bash
+ zcat $R1 | head -2 | tail -1 | wc -c
+ zcat $R2 | head -2 | tail -1 | wc -c
+ zcat $R3 | head -2 | tail -1 | wc -c
+ zcat $R4 | head -2 | tail -1 | wc -c
+```
+```
+Result: 102 for R1 and R4, 9 for R2 and R3
+This includes a new line character at the end of the sequence.
+Read length = 102 - 1 = 101, Read length = 9 - 1 = 8
+
+So, the sequences are 101 bases long and the barcodes are 8 bases long
+```
+
 ## File lengths
 ``` bash
 DATA=/projects/bgmp/shared/2017_sequencing/
@@ -14,6 +98,20 @@ zcat $R# | wc -l
 
 - R2: 1452986940 (Index 1)
 - R3: 1452986940 (Index 2)
+
+
+## Score Distribution
+Loop through the file, store the quality scores for each base, for each read
+
+     0 1 2 3
+- - - - - - -
+0  | 1 1 1 1
+1  | 2 2 2 2
+2  | 3 3 3 3
+3  | 4 4 4 4
+4  | 5 5 5 5
+
+output: [ 3 3 3 3 ]
 
 
 ## Define the problem
@@ -77,22 +175,6 @@ for line in r1, r2, r3, r4:
             add r1_rec and r4_rec to hopped.fq
             count_hop += 1
 
-            
-            
-            
-
-
-    record = {header: [3 lines]}
-
-    if idx2 not in indexes or idx2 is low_quality
-        write header + index1-index2 to files_r1[unknown]
-        write record[header] to files_r1[unknown]
-        continue
-    if idx1 != rev_comp(idx2)
-        write record to files_r1[hopped]
-    else:
-        write record to files_r1[index]
-
 ```
 
 # Function declarations:
@@ -117,3 +199,5 @@ Output: False
 Input: AAAAA, 30
 Output: True
 ```
+
+# Optimizing

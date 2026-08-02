@@ -29,7 +29,6 @@ def qual_score(phred_score: str) -> float:
     avg = sum/len(phred_score) 
     return avg
 
-
 def validate_base_seq(seq,RNAflag=False):
     '''This function takes a string. Returns True if string is composed
     of only As, Ts (or Us if RNAflag), Gs, Cs. False otherwise. Case insensitive.'''
@@ -96,6 +95,21 @@ def calc_kmer_coverage(mean_read_length, kmer_size, base_coverage):
     """    
     return base_coverage * (mean_read_length - kmer_size + 1) / mean_read_length
 
+
+def plot(file, label):
+    import matplotlib.pyplot as plt
+    lst = []
+    with open(file, 'r') as fh:
+        for line in fh:
+            lst.append(float(line.strip('\n')))
+
+    x = range(len(lst))
+    y = lst
+    plt.bar(x, y)
+    plt.xlabel('Base #')
+    plt.ylabel('Average Quality Score')
+    plt.title('Average Quality Score at Each Base (Read 2)')
+    plt.savefig(f"plot_{label}.png")
 
 
 if __name__ == "__main__":

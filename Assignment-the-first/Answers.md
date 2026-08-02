@@ -5,15 +5,25 @@
 
 | File name | label | Read length | Phred encoding |
 |---|---|---|---|
-| 1294_S1_L008_R1_001.fastq.gz |  |  |  |
-| 1294_S1_L008_R2_001.fastq.gz |  |  |  |
-| 1294_S1_L008_R3_001.fastq.gz |  |  |  |
-| 1294_S1_L008_R4_001.fastq.gz |  |  |  |
+| 1294_S1_L008_R1_001.fastq.gz | Read 1 | 101 | 33 |
+| 1294_S1_L008_R2_001.fastq.gz | Index 1 | 8 | 33 |
+| 1294_S1_L008_R3_001.fastq.gz | Index 2 | 8 | 33 |
+| 1294_S1_L008_R4_001.fastq.gz | Read 2 | 101 | 33 |
 
 2. Per-base NT distribution
     1. Use markdown to insert your 4 histograms here.
-    2. **YOUR ANSWER HERE**
-    3. **YOUR ANSWER HERE**
+
+        - [plot_r1](Assignment-the-first/averages/plot_r1.png)
+
+        - [plot_r2](Assignment-the-first/averages/plot_r2.png)
+
+        - [plot_r3](Assignment-the-first/averages/plot_r3.png)
+
+        - [plot_r4](Assignment-the-first/averages/plot_r4.png)
+
+    2. Based on the quality scores graphs, it looks like a good quality score cutoff is around 36. This is a little higher than the average.
+    3. R2 - 359270122
+       R3 - 359918684
     
 ## Part 2
 1. Define the problem
