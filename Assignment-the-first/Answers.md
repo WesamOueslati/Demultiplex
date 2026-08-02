@@ -22,8 +22,8 @@
         - [plot_r4](Assignment-the-first/averages/plot_r4.png)
 
     2. Based on the quality scores graphs, it looks like a good quality score cutoff is around 36. This is a little higher than the average.
-    3. R2 - 359270122
-       R3 - 359918684
+    3. R2 - 3976613
+       R3 - 3328051
     
 ## Part 2
 1. Define the problem
