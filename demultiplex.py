@@ -4,13 +4,7 @@ import bioinfo
 import gzip
 
 def reverse_complement(seq: str):
-    tr_table = {
-        'T': 'A',
-        'C': 'G',
-        'A': 'T',
-        'G': 'C',
-        'N': 'N'
-    } 
+    tr_table = str.maketrans('ATCGN', 'TAGCN')
     reverse = seq[::-1]
     reverse_comp = reverse.translate(tr_table)
     return reverse_comp
@@ -19,16 +13,34 @@ def is_high_qual(qual_seq: str ,seq , thresh: float):
     return all(([bioinfo.convert_phred(char) > thresh for char in qual_seq])) and ('N' not in seq)
 
 def is_valid(barcode, barcodes):
-    return (barcode in barcodes)
+    return (barcode in barcodes.values())
 
-def write_record(file_name: str, record, idx_1, idx_2):
-    fh = open(file_name, 'a')
+def open_files(barcode_pairs) -> dict:
+    handles = {}
+    
+    for pair in barcode_pairs:
+        handles[f"{pair}_r1"] = open(f"{pair}_r1.fq" ,'a')
+        handles[f"{pair}_r2"] = open(f"{pair}_r2.fq" ,'a')
+        
+    handles[f"unknown_r1"] = open(f"unknown_r1.fq", 'a')
+    handles[f"unknown_r2"] = open(f"unknown_r2.fq", 'a')
+    handles[f"hopped_r1"] = open(f"hopped_r1.fq", 'a')
+    handles[f"hopped_r2"] = open(f"hopped_r2.fq", 'a')
+
+    return handles
+
+def close_files(handles) -> None:
+    for handle in handles:
+        handles[handle].close()
+    return
+
+def write_record(hanlde, record: list[str], idx_pair: str) -> None:
     for i, line in enumerate(record): 
         if i%4 == 0:
-            fh.write(f"{line} {idx_1}_{idx_2}\n")
+            handle.write(f"{line} {idx_1}_{idx_2}\n")
         else:
-            fh.write(f"{line}\n")
-    fh.close()
+            handle.write(f"{line}\n")
+    return
     
 def barcodes_to_dict(barcodes_file, sep):
     barcodes = { }
@@ -57,7 +69,7 @@ def store_barcode_pairs(barcodes, output):
     return counts
     
 
-def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, counts) -> None:
+def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, counts: dict) -> None:
     
     with open(R1, 'r') as r1, open(R2, 'r') as r2, open(R3, 'r') as r3, open(R4, 'r') as r4:
         count_matches = 0
