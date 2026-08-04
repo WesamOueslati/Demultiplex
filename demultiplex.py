@@ -34,10 +34,10 @@ def close_files(handles) -> None:
         handles[handle].close()
     return
 
-def write_record(hanlde, record: list[str], idx_pair: str) -> None:
+def write_record(handle, record: list[str], idx_str: str) -> None:
     for i, line in enumerate(record): 
         if i%4 == 0:
-            handle.write(f"{line} {idx_1}_{idx_2}\n")
+            handle.write(f"{line} {idx_str}\n")
         else:
             handle.write(f"{line}\n")
     return
@@ -69,8 +69,9 @@ def store_barcode_pairs(barcodes, output):
     return counts
     
 
-def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, counts: dict) -> None:
+def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, counts: dict) -> dict:
     
+    handles = open_files(counts.keys())
     with open(R1, 'r') as r1, open(R2, 'r') as r2, open(R3, 'r') as r3, open(R4, 'r') as r4:
         count_matches = 0
         count_unknown = 0
@@ -103,18 +104,27 @@ def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, counts: dict
                 valid = (is_valid(idx_1, barcodes) and is_valid(idx_2, barcodes))
                 
                 if not valid or low_qual:
-                    write_record("unknown_r1", r1_rec, idx_1, idx_2)
-                    write_record("unknown_r2", r4_rec, idx_1, idx_2)
+                    fh_r1 = handles[f"unknown_r1"]
+                    fh_r2 = handles[f"unknown_r2"]
+                    
+                    write_record(fh_r1, r1_rec, idx_1, idx_2)
+                    write_record(fh_r2, r4_rec, idx_1, idx_2)
                     count_unknown += 1
                 else:
                     if rv:
-                        write_record(f"{idx_str}_r1.fq", r1_rec, idx_1, idx_2)
-                        write_record(f"{idx_str}_r2.fq", r4_rec, idx_1, idx_2)
+                        fh_r1 = handles[f"{idx_str}_r1"]
+                        fh_r2 = handles[f"{idx_str}_r2"]
+                        
+                        write_record(fh_r1, r1_rec, idx_1, idx_2)
+                        write_record(fh_r2, r4_rec, idx_1, idx_2)
                         counts[idx_str] += 1
                         count_matches += 1
                     else:
-                        write_record("hopped_r1", r1_rec, idx_1, idx_2)
-                        write_record("hopped_r2", r4_rec, idx_1, idx_2)
+                        fh_r1 = handles["hopped_r1"]
+                        fh_r2 = handles["hopped_r2"]
+                        
+                        write_record(fh_r1, r1_rec, idx_1, idx_2)
+                        write_record(fh_r2, r4_rec, idx_1, idx_2)
                         counts[idx_str] += 1
                         count_hopped += 1
                 
@@ -123,6 +133,7 @@ def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, counts: dict
                 r3_rec.clear()
                 r4_rec.clear()
 
+    return counts
 if __name__ == "__main__":
     
     import itertools
