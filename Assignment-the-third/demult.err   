@@ -1,1 +1,2 @@
  WARN cache for Repodata at /home/oueslati/.cache/rattler/cache/repodata is on a network/parallel filesystem (NFS/SMB/FUSE/BeeGFS/Lustre/GPFS/CephFS), redirected to /tmp/pixi-cache-oueslati/repodata for this run. Set [cache.repodata] in config.toml or PIXI_CACHE_DIR to override, or [cache.netfs-redirect] = "never" to keep the original path.
+slurmstepd: error: *** JOB 46041300 ON n0097 CANCELLED AT 2026-08-10T09:55:41 ***

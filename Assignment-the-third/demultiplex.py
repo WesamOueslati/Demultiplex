@@ -20,13 +20,13 @@ def open_files(barcode_pairs: list[str]) -> dict:
     handles = {}
     
     for pair in barcode_pairs:
-        handles[f"{pair}_r1"] = open(f"output/{pair}_r1.fq" ,'a')
-        handles[f"{pair}_r2"] = open(f"output/{pair}_r2.fq" ,'a')
+        handles[f"{pair}_r1"] = open(f"/scratch/bgmp/oueslati/demux/{pair}_r1.fq" ,'a')
+        handles[f"{pair}_r2"] = open(f"/scratch/bgmp/oueslati/demux/{pair}_r2.fq" ,'a')
         
-    handles[f"unknown_r1"] = open(f"output/unknown_r1.fq", 'a')
-    handles[f"unknown_r2"] = open(f"output/unknown_r2.fq", 'a')
-    handles[f"hopped_r1"] = open(f"output/hopped_r1.fq", 'a')
-    handles[f"hopped_r2"] = open(f"output/hopped_r2.fq", 'a')
+    handles[f"unknown_r1"] = open(f"/scratch/bgmp/oueslati/demux/unknown_r1.fq", 'a')
+    handles[f"unknown_r2"] = open(f"/scratch/bgmp/oueslati/demux/unknown_r2.fq", 'a')
+    handles[f"hopped_r1"] = open(f"/scratch/bgmp/oueslati/demux/hopped_r1.fq", 'a')
+    handles[f"hopped_r2"] = open(f"/scratch/bgmp/oueslati/demux/hopped_r2.fq", 'a')
 
     return handles
 
@@ -84,8 +84,6 @@ def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, output, cuto
         r3_rec = []
         r4_rec = []
         
-        index_headers = []
-        sequence_headers = []
         
         for line in r1:
             
@@ -104,8 +102,6 @@ def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, output, cuto
                 idx_1, idx_2 = r2_rec[1], r3_rec[1]
                 qual_1, qual_2 = r2_rec[3], r3_rec[3] 
                              
-                index_headers.append(len(head_1))
-                sequence_headers.append(len(head_2))
                                 
                 idx_str = f"{idx_1}_{reverse_complement(idx_2)}"
                 
@@ -192,12 +188,17 @@ if __name__ == "__main__":
     # barcodes = barcodes_to_dict(BARCODES_PATH, sep=' ')
     barcodes = barcodes_to_dict(barcode_path, sep='\t')
     # demultiplex(r1, r2, r3, r4, barcodes, counts)
+    
+    print("Demultiplexing ...")
     counts, count_matches, count_unknown, count_hopped = demultiplex(R1, R2, R3, R4, barcodes, BARCODE_PAIRS_PATH, float(cutoff))
     
     # Saving output to a file so i can use to make heat map later
+    print("Storing Counts ...")
     with open("counts.json", "w") as file:
         json.dump(counts, file, indent=4)
-        
+    
+    
+    print("Displaying Counts ...")
     with open("counts.txt", 'w') as counts_fh:
         counts_fh.write(f"Number of barcodes that matched:\t{count_matches}\n")
         counts_fh.write(f"Number of barcodes that were different:\t{count_hopped}\n")

@@ -14,4 +14,4 @@ R4=${DATA}1294_S1_L008_R4_001.fastq.gz
 
 BARCODES=/projects/bgmp/shared/2017_sequencing/indexes.txt
 
-/usr/bin/time -v pixi run ./demultiplex.py -f $R1 -1 $R2 -2 $R3 -r $R4 -b $BARCODES -c 30.0
+/usr/bin/time -v pixi run ./demultiplex.py -f $R1 -t $R2 -y $R3 -r $R4 -b $BARCODES -c 30.0
