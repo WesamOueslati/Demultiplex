@@ -1,0 +1,59 @@
+# Demultiplexing
+
+```
+Requirements:
+    matplotlib
+    itertools
+
+To run the algorithm:
+```
+
+``` bash
+/usr/bin/time -v pixi run ./demultiplex.py -f $R1 -1 $R2 -2 $R3 -r $R4
+```
+
+```
+with R1, R2, R3, R4 being the paths to the forward read, first index, second index, and reverse read files respectively.
+
+After running the demultiplexing algorithm, we can use the output to generate a report by running: 
+```
+
+``` bash
+pixi run ./sample_stats.py
+```
+
+### Sample output: (using no quality score cutoff)
+```
+The following barcodes matched with the following percentatges
+GTAGCGTA_GTAGCGTA: 2.442151019416541
+CGATCGAT_CGATCGAT: 1.6858928142309635
+GATCAAGG_GATCAAGG: 1.981304535410345
+AACAGCGA_AACAGCGA: 2.6685796788442238
+TAGCCATG_TAGCCATG: 3.1972400711462514
+CGGTAATC_CGGTAATC: 1.523450566900012
+CTCTGGAT_CTCTGGAT: 10.520392007919636
+TACCGGAT_TACCGGAT: 22.969145180052987
+CTAGCTCA_CTAGCTCA: 5.21322608351101
+CACTTCAC_CACTTCAC: 1.2607089696625975
+GCTACTCT_GCTACTCT: 2.2307932202683034
+ACGATCAG_ACGATCAG: 2.389095455207552
+TATGGCAC_TATGGCAC: 3.3640770962347717
+TGTTCCGT_TGTTCCGT: 4.732261256811451
+GTCCTAAG_GTCCTAAG: 2.6560194756000546
+TCGACAAG_TCGACAAG: 1.159032021910014
+TCTTCGAC_TCTTCGAC: 12.661300878940812
+ATCATGCG_ATCATGCG: 3.0341751977145424
+ATCGTGGT_ATCGTGGT: 2.0716881886803007
+TCGAGAGT_TCGAGAGT: 3.5316877417731223
+TCGGATTC_TCGGATTC: 1.3870274732984915
+GATCTTGC_GATCTTGC: 1.095181865670115
+AGAGTCCA_AGAGTCCA: 3.403923963541025
+AGGATAGC_AGGATAGC: 2.6087672679070146
+
+--------------------------------------------------------------
+
+The number of indexes that hopped is 707740 which is 0.21287796934786443% of all reads
+```
+- Output plot summarizing this informaation can be found [here](percentages.png) and is generated using the same function. 
+
+### Sample output: (using quality cutoff of 30.0)

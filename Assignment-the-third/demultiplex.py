@@ -20,13 +20,13 @@ def open_files(barcode_pairs: list[str]) -> dict:
     handles = {}
     
     for pair in barcode_pairs:
-        handles[f"{pair}_r1"] = open(f"output/{pair}_r1.fq" ,'a')
-        handles[f"{pair}_r2"] = open(f"output/{pair}_r2.fq" ,'a')
+        handles[f"{pair}_r1"] = open(f"/scratch/bgmp/oueslati/demux/{pair}_r1.fq" ,'a')
+        handles[f"{pair}_r2"] = open(f"/scratch/bgmp/oueslati/demux/{pair}_r2.fq" ,'a')
         
-    handles[f"unknown_r1"] = open(f"output/unknown_r1.fq", 'a')
-    handles[f"unknown_r2"] = open(f"output/unknown_r2.fq", 'a')
-    handles[f"hopped_r1"] = open(f"output/hopped_r1.fq", 'a')
-    handles[f"hopped_r2"] = open(f"output/hopped_r2.fq", 'a')
+    handles[f"unknown_r1"] = open(f"/scratch/bgmp/oueslati/demux/unknown_r1.fq", 'a')
+    handles[f"unknown_r2"] = open(f"/scratch/bgmp/oueslati/demux/unknown_r2.fq", 'a')
+    handles[f"hopped_r1"] = open(f"/scratch/bgmp/oueslati/demux/hopped_r1.fq", 'a')
+    handles[f"hopped_r2"] = open(f"/scratch/bgmp/oueslati/demux/hopped_r2.fq", 'a')
 
     return handles
 
@@ -58,9 +58,7 @@ def barcodes_to_dict(barcodes_file, sep):
 
 def store_barcode_pairs(barcodes, output):
     barcodes_ls = barcodes.values()
-
     counts = {}
-    
     files = []
 
     prod = itertools.product(barcodes_ls, repeat=2)
@@ -74,7 +72,7 @@ def store_barcode_pairs(barcodes, output):
     return counts, files
     
 
-def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, output) -> dict:
+def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, output, cutoff=0.0) -> dict:
     counts, files = store_barcode_pairs(barcodes, output)
     handles = open_files(files)
     with gzip.open(R1, 'rt') as r1, gzip.open(R2, 'rt') as r2, gzip.open(R3, 'rt') as r3, gzip.open(R4, 'rt') as r4:
@@ -115,7 +113,7 @@ def demultiplex(R1: str, R2: str, R3: str, R4: str, barcodes: dict, output) -> d
                 
                 rv = (idx_1 == reverse_complement(idx_2))
                 # print(f"is reversed?: {rv}")
-                low_qual = not (is_high_qual(qual_1, idx_1, 0.0) and is_high_qual(qual_2, idx_2, 0.0))
+                low_qual = not (is_high_qual(qual_1, idx_1, cutoff) and is_high_qual(qual_2, idx_2, cutoff))
                 # print(f"is low_quality?: {low_qual}")
                 valid = (is_valid(idx_1, barcodes) and is_valid(reverse_complement(idx_2), barcodes))
                 # print(f"is valid?: {valid}")
@@ -160,8 +158,8 @@ if __name__ == "__main__":
     assert is_high_qual("IIII", "AAAN", 5.0) == False
     assert is_high_qual("IIII", "AAAA", 5.0) == True
     
-    BARCODES_PATH="/projects/bgmp/shared/2017_sequencing/indexes.txt"
-    BARCODE_PAIRS_PATH="/projects/bgmp/oueslati/bioinfo/Bi622/AS1/Demultiplex/barcode_pairs.txt"
+    # BARCODES_PATH="/projects/bgmp/shared/2017_sequencing/indexes.txt"
+    BARCODE_PAIRS_PATH="/projects/bgmp/oueslati/bioinfo/Bi622/AS1/Demultiplex/Assignment-the-third/barcode_pairs.txt"
     
     # R1 = "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R1_001.fastq.gz"
     # R2 = "/projects/bgmp/shared/2017_sequencing/1294_S1_L008_R2_001.fastq.gz"
@@ -173,7 +171,8 @@ if __name__ == "__main__":
     parser.add_argument('-1', '--index_1', help="index 1")
     parser.add_argument('-2', '--index_2', help="index 2")
     parser.add_argument('-r', '--reverse_read', help="Forward read")
-    # parser.add_argument('-b', '--barcodes', help="Barcodes file")
+    parser.add_argument('-b', '--barcodes', help="Barcodes file")
+    parser.add_argument('-c', '--quality_cutoff', help="Quality cutoff", type=float)
     
     args = parser.parse_args()
     
@@ -181,6 +180,8 @@ if __name__ == "__main__":
     R2 = args.index_2
     R3 = args.index_1
     R4 = args.reverse_read
+    barcode_path = args.barcodes
+    cutoff = args.quality_cutoff
 
     # BARCODES_PATH = "/projects/bgmp/oueslati/bioinfo/Bi622/AS1/Demultiplex/TEST-input_FASTQ/barcodes.txt"
     # BARCODE_PAIRS_PATH="/projects/bgmp/oueslati/bioinfo/Bi622/AS1/Demultiplex/barcode_pairs.txt"
@@ -192,10 +193,10 @@ if __name__ == "__main__":
     
     # barcodes = barcodes_to_dict(BARCODES_PATH, sep=' ')
     
-    barcodes = barcodes_to_dict(BARCODES_PATH, sep='\t')
+    barcodes = barcodes_to_dict(barcode_path, sep='\t')
     
     # demultiplex(r1, r2, r3, r4, barcodes, counts)
-    counts, count_matches, count_unknown, count_hopped = demultiplex(R1, R2, R3, R4, barcodes, BARCODE_PAIRS_PATH)
+    counts, count_matches, count_unknown, count_hopped = demultiplex(R1, R2, R3, R4, barcodes, BARCODE_PAIRS_PATH, cutoff)
     
     # Saving output to a file so i can use to make heat map later
     with open("counts.json", "w") as file:
@@ -204,6 +205,6 @@ if __name__ == "__main__":
     with open("counts.txt", 'w') as counts_fh:
         counts_fh.write(f"Number of barcodes that matched:\t{count_matches}\n")
         counts_fh.write(f"Number of barcodes that were different:\t{count_hopped}\n")
-        counts_fh.write(f"Number of barcodes that were not valid barcodes or were low quality:\t{count_unknown}/n")
+        counts_fh.write(f"Number of barcodes that were not valid barcodes or were low quality:\t{count_unknown}\n")
         
     
