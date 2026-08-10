@@ -1,0 +1,3 @@
+Number of barcodes that matched:	331755033
+Number of barcodes that were different:	707740
+Number of barcodes that were not valid barcodes or were low quality:	30783962

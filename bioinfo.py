@@ -110,6 +110,9 @@ def plot(file, label):
     plt.ylabel('Average Quality Score')
     plt.title('Average Quality Score at Each Base (Read 2)')
     plt.savefig(f"plot_{label}.png")
+    
+    
+
 
 
 if __name__ == "__main__":
