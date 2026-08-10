@@ -54,6 +54,6 @@ AGGATAGC_AGGATAGC: 2.6087672679070146
 
 The number of indexes that hopped is 707740 which is 0.21287796934786443% of all reads
 ```
-- Output plot summarizing this informaation can be found [here](percentages.png) and is generated using the same function. 
+- Output plot summarizing this informaation can be found [here](percentages_nocutoff.png) and is generated using the same function. 
 
 ### Sample output: (using quality cutoff of 30.0)
